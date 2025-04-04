@@ -112,7 +112,6 @@ func updateTodo(id int, description string, status Status) {
 	}
 
 	fmt.Printf("Error: Todo with ID %d not found\n", id)
-	os.Exit(1)
 }
 
 func deleteTodo(id int) {
@@ -125,7 +124,6 @@ func deleteTodo(id int) {
 	}
 
 	fmt.Printf("Error: Todo with ID %d not found\n", id)
-	os.Exit(1)
 }
 
 func validateStatus(status string) (Status, error) {
