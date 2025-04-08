@@ -154,7 +154,7 @@ func main() {
 
 	if err := loadTodos(); err != nil {
 		fmt.Printf("Error loading todos: %v\n", err)
-		os.Exit(1)
+		return
 	}
 
 	switch {
@@ -163,30 +163,30 @@ func main() {
 	case *addFlag:
 		if *description == "" {
 			fmt.Println("Error: --description is required for --add")
-			os.Exit(1)
+			return
 		}
 		addTodo(*description)
 		saveTodos()
 	case *updateFlag:
 		if *id == 0 {
 			fmt.Println("Error: --id is required for --update")
-			os.Exit(1)
+			return
 		}
 		if *description == "" && *status == "" {
 			fmt.Println("Error: At least one of --description or --status must be provided for --update")
-			os.Exit(1)
+			return
 		}
 		validStatus, err := validateStatus(*status)
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(1)
+			return
 		}
 		updateTodo(*id, *description, validStatus)
 		saveTodos()
 	case *deleteFlag:
 		if *id == 0 {
 			fmt.Println("Error: --id is required for --delete")
-			os.Exit(1)
+			return
 		}
 		deleteTodo(*id)
 		saveTodos()
