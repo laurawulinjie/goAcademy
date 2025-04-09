@@ -1,27 +1,45 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func resetTodos() {
 	todos = []Todo{}
 	nextID = 1
+	setupLogger()
 }
 
 func TestAddTodo(t *testing.T) {
-	resetTodos()
-	addTodo("Dummy Task")
+	t.Run("add todo with description", func(t *testing.T) {
+		resetTodos()
+		err := addTodo("Dummy Task")
 
-	if len(todos) != 1 {
-		t.Fatalf("Expected 1 todo, got %d", len(todos))
-	}
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
+		}
 
-	if todos[0].Task != "Dummy Task" {
-		t.Errorf("Expected task 'Dummy Task', got '%s'", todos[0].Task)
-	}
+		if len(todos) != 1 {
+			t.Errorf("Expected 1 todo, got %d", len(todos))
+		}
 
-	if todos[0].Status != NotStarted {
-		t.Errorf("Expected status 'not started', got '%s'", todos[0].Status)
-	}
+		if todos[0].Task != "Dummy Task" {
+			t.Errorf("Expected task 'Dummy Task', got '%s'", todos[0].Task)
+		}
+
+		if todos[0].Status != NotStarted {
+			t.Errorf("Expected status 'not started', got '%s'", todos[0].Status)
+		}
+	})
+
+	t.Run("add todo with no description", func(t *testing.T) {
+		resetTodos()
+		err := addTodo("")
+
+		if err == nil {
+			t.Errorf("Expected error for empty description, got nil")
+		}
+	})
 }
 
 func TestUpdateTodo(t *testing.T) {
@@ -29,7 +47,11 @@ func TestUpdateTodo(t *testing.T) {
 		resetTodos()
 		addTodo("Initial Task")
 		id := todos[0].ID
-		updateTodo(id, "Updated task", Started)
+		err := updateTodo(id, "Updated task", Started)
+
+		if err != nil {
+			t.Errorf("Expected no err, got '%v'", err)
+		}
 
 		if todos[0].Task != "Updated task" {
 			t.Errorf("Expected task 'Updated task', got '%s'", todos[0].Task)
@@ -42,8 +64,10 @@ func TestUpdateTodo(t *testing.T) {
 
 	t.Run("update nonexistent task", func(t *testing.T) {
 		resetTodos()
-		updateTodo(1, "Nonexistent", Started)
-
+		err := updateTodo(1, "Nonexistent", Started)
+		if err == nil {
+			t.Errorf("Expected error, got nil")
+		}
 	})
 }
 
@@ -52,7 +76,11 @@ func TestDeleteTodo(t *testing.T) {
 		resetTodos()
 		addTodo("Todo to delete")
 		id := todos[0].ID
-		deleteTodo(id)
+		err := deleteTodo(id)
+
+		if err != nil {
+			t.Errorf("Expected no error, got '%v'", err)
+		}
 
 		if len(todos) != 0 {
 			t.Errorf("Expected 0 todos after deletion, got %d", len(todos))
@@ -61,6 +89,9 @@ func TestDeleteTodo(t *testing.T) {
 
 	t.Run("delete nonexistent todo", func(t *testing.T) {
 		resetTodos()
-		deleteTodo(1)
+		err := deleteTodo(1)
+		if err == nil {
+			t.Errorf("Expected error, got nil")
+		}
 	})
 }

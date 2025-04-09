@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"slices"
 	"text/tabwriter"
@@ -28,11 +30,18 @@ var nextID = 1
 
 const dataFile = "todos.json"
 
+var logger *slog.Logger
+
+func setupLogger() {
+	logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
+}
+
 func loadTodos() error {
 	file, err := os.Open(dataFile)
 
 	if err != nil {
 		if os.IsNotExist(err) {
+			logger.Info("todos file not found, starting with emtpy list", "file", dataFile)
 			return nil
 		}
 		return fmt.Errorf("failed to open file: %v", err)
@@ -40,12 +49,15 @@ func loadTodos() error {
 
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	decoder.Decode(&todos)
+	if err := decoder.Decode(&todos); err != nil {
+		return fmt.Errorf("failed to decode todos: %v", err)
+	}
 
 	if len(todos) > 0 {
 		nextID = todos[len(todos)-1].ID + 1
 	}
 
+	logger.Info("todos loaded", "todoLength", len(todos))
 	return nil
 }
 
@@ -64,12 +76,13 @@ func saveTodos() error {
 		return fmt.Errorf("failed to encode todos: %v", err)
 	}
 
+	logger.Info("todos saved", "todoLength", len(todos))
 	return nil
 }
 
 func listTodos() {
 	if len(todos) == 0 {
-		fmt.Println("No todos found")
+		logger.Info("No todos found")
 		return
 	}
 
@@ -83,7 +96,11 @@ func listTodos() {
 	writer.Flush()
 }
 
-func addTodo(description string) {
+func addTodo(description string) error {
+	if description == "" {
+		return errors.New("description cannot be empty")
+	}
+
 	newTodo := Todo{
 		ID:     nextID,
 		Task:   description,
@@ -92,10 +109,11 @@ func addTodo(description string) {
 
 	todos = append(todos, newTodo)
 	nextID++
-	fmt.Printf("Created todo with ID %d: %s [%s]\n", newTodo.ID, newTodo.Task, newTodo.Status)
+	logger.Info("Created new todo", "id", newTodo.ID, "task", newTodo.Task, "status", newTodo.Status)
+	return nil
 }
 
-func updateTodo(id int, description string, status Status) {
+func updateTodo(id int, description string, status Status) error {
 	for i, todo := range todos {
 		if todo.ID == id {
 			if description != "" {
@@ -106,24 +124,26 @@ func updateTodo(id int, description string, status Status) {
 				todos[i].Status = status
 			}
 
-			fmt.Printf("Updated todo ID %d: %s [%s]\n", id, todos[i].Task, todos[i].Status)
-			return
+			logger.Info("Updated todo", "id", id, "task", todos[i].Task, "status", todos[i].Status)
+			return nil
 		}
 	}
 
-	fmt.Printf("Error: Todo with ID %d not found\n", id)
+	logger.Error("Todo not found", "id", id)
+	return fmt.Errorf("todo not found")
 }
 
-func deleteTodo(id int) {
+func deleteTodo(id int) error {
 	for i, todo := range todos {
 		if todo.ID == id {
 			todos = slices.Delete(todos, i, i+1)
 			fmt.Printf("Deleted todo ID %d\n", id)
-			return
+			return nil
 		}
 	}
 
-	fmt.Printf("Error: Todo with ID %d not found\n", id)
+	logger.Error("Todo not found", "id", id)
+	return errors.New("todo not found")
 }
 
 func validateStatus(status string) (Status, error) {
@@ -142,6 +162,8 @@ func validateStatus(status string) (Status, error) {
 }
 
 func main() {
+	setupLogger()
+
 	listFlag := flag.Bool("list", false, "List all todos")
 	addFlag := flag.Bool("add", false, "Add a new todo")
 	updateFlag := flag.Bool("update", false, "Update a todo")
@@ -153,7 +175,7 @@ func main() {
 	flag.Parse()
 
 	if err := loadTodos(); err != nil {
-		fmt.Printf("Error loading todos: %v\n", err)
+		logger.Error("Error loading todos", "error", err)
 		return
 	}
 
@@ -162,23 +184,23 @@ func main() {
 		listTodos()
 	case *addFlag:
 		if *description == "" {
-			fmt.Println("Error: --description is required for --add")
+			logger.Error("Error: --description is required for --add")
 			return
 		}
 		addTodo(*description)
 		saveTodos()
 	case *updateFlag:
 		if *id == 0 {
-			fmt.Println("Error: --id is required for --update")
+			logger.Error("Error: --id is required for --update")
 			return
 		}
 		if *description == "" && *status == "" {
-			fmt.Println("Error: At least one of --description or --status must be provided for --update")
+			logger.Error("Error: At least one of --description or --status must be provided for --update")
 			return
 		}
 		validStatus, err := validateStatus(*status)
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(err.Error())
 			return
 		}
 		updateTodo(*id, *description, validStatus)
