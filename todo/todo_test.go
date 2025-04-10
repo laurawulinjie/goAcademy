@@ -1,19 +1,21 @@
 package main
 
 import (
+	"context"
 	"testing"
 )
 
-func resetTodos() {
+func resetTodos() context.Context {
 	todos = []Todo{}
 	nextID = 1
 	setupLogger()
+	return withTraceId(context.Background())
 }
 
 func TestAddTodo(t *testing.T) {
 	t.Run("add todo with description", func(t *testing.T) {
-		resetTodos()
-		err := addTodo("Dummy Task")
+		ctx := resetTodos()
+		err := addTodo(ctx, "Dummy Task")
 
 		if err != nil {
 			t.Errorf("Expected no error, got %v", err)
@@ -33,8 +35,8 @@ func TestAddTodo(t *testing.T) {
 	})
 
 	t.Run("add todo with no description", func(t *testing.T) {
-		resetTodos()
-		err := addTodo("")
+		ctx := resetTodos()
+		err := addTodo(ctx, "")
 
 		if err == nil {
 			t.Errorf("Expected error for empty description, got nil")
@@ -44,10 +46,10 @@ func TestAddTodo(t *testing.T) {
 
 func TestUpdateTodo(t *testing.T) {
 	t.Run("update existing task", func(t *testing.T) {
-		resetTodos()
-		addTodo("Initial Task")
+		ctx := resetTodos()
+		addTodo(ctx, "Initial Task")
 		id := todos[0].ID
-		err := updateTodo(id, "Updated task", Started)
+		err := updateTodo(ctx, id, "Updated task", Started)
 
 		if err != nil {
 			t.Errorf("Expected no err, got '%v'", err)
@@ -63,8 +65,8 @@ func TestUpdateTodo(t *testing.T) {
 	})
 
 	t.Run("update nonexistent task", func(t *testing.T) {
-		resetTodos()
-		err := updateTodo(1, "Nonexistent", Started)
+		ctx := resetTodos()
+		err := updateTodo(ctx, 1, "Nonexistent", Started)
 		if err == nil {
 			t.Errorf("Expected error, got nil")
 		}
@@ -73,10 +75,10 @@ func TestUpdateTodo(t *testing.T) {
 
 func TestDeleteTodo(t *testing.T) {
 	t.Run("delete existing todo", func(t *testing.T) {
-		resetTodos()
-		addTodo("Todo to delete")
+		ctx := resetTodos()
+		addTodo(ctx, "Todo to delete")
 		id := todos[0].ID
-		err := deleteTodo(id)
+		err := deleteTodo(ctx, id)
 
 		if err != nil {
 			t.Errorf("Expected no error, got '%v'", err)
@@ -88,8 +90,8 @@ func TestDeleteTodo(t *testing.T) {
 	})
 
 	t.Run("delete nonexistent todo", func(t *testing.T) {
-		resetTodos()
-		err := deleteTodo(1)
+		ctx := resetTodos()
+		err := deleteTodo(ctx, 1)
 		if err == nil {
 			t.Errorf("Expected error, got nil")
 		}

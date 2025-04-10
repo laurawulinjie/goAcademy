@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -9,6 +10,8 @@ import (
 	"os"
 	"slices"
 	"text/tabwriter"
+
+	"github.com/google/uuid"
 )
 
 type Status string
@@ -36,36 +39,62 @@ func setupLogger() {
 	logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
 
-func loadTodos() error {
+type contextKey string
+
+const traceIdKey contextKey = "traceID"
+
+func generateTraceId() string {
+	return uuid.New().String()
+}
+
+func withTraceId(ctx context.Context) context.Context {
+	return context.WithValue(ctx, traceIdKey, generateTraceId())
+}
+
+func getTraceId(ctx context.Context) string {
+	if traceId, ok := ctx.Value(traceIdKey).(string); ok {
+		return traceId
+	}
+	return "no-trace-id"
+}
+
+func logWithTraceId(ctx context.Context) *slog.Logger {
+	return logger.With("traceId", getTraceId(ctx))
+}
+
+func loadTodos(ctx context.Context) error {
 	file, err := os.Open(dataFile)
 
 	if err != nil {
 		if os.IsNotExist(err) {
-			logger.Info("todos file not found, starting with emtpy list", "file", dataFile)
+			logWithTraceId(ctx).Info("todos file not found, starting with emtpy list", "file", dataFile)
 			return nil
 		}
-		return fmt.Errorf("failed to open file: %v", err)
+		logWithTraceId(ctx).Error("failed to open file")
+		return err
 	}
 
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&todos); err != nil {
-		return fmt.Errorf("failed to decode todos: %v", err)
+		logWithTraceId(ctx).Error("failed to decode todos")
+		return err
 	}
 
 	if len(todos) > 0 {
 		nextID = todos[len(todos)-1].ID + 1
 	}
 
-	logger.Info("todos loaded", "todoLength", len(todos))
+	logWithTraceId(ctx).Info("todos loaded", "todoLength", len(todos))
 	return nil
 }
 
-func saveTodos() error {
+func saveTodos(ctx context.Context) error {
 	file, err := os.Create(dataFile)
 
 	if err != nil {
-		return fmt.Errorf("failed to create file: %v", err)
+		logWithTraceId(ctx).Error("failed to create file")
+		return err
 	}
 
 	defer file.Close()
@@ -73,16 +102,17 @@ func saveTodos() error {
 	encoder.SetIndent("", "	")
 
 	if err := encoder.Encode(todos); err != nil {
-		return fmt.Errorf("failed to encode todos: %v", err)
+		logWithTraceId(ctx).Error("failed to encode todos")
+		return err
 	}
 
-	logger.Info("todos saved", "todoLength", len(todos))
+	logWithTraceId(ctx).Info("todos saved", "todoLength", len(todos))
 	return nil
 }
 
-func listTodos() {
+func listTodos(ctx context.Context) {
 	if len(todos) == 0 {
-		logger.Info("No todos found")
+		logWithTraceId(ctx).Info("No todos found")
 		return
 	}
 
@@ -96,7 +126,7 @@ func listTodos() {
 	writer.Flush()
 }
 
-func addTodo(description string) error {
+func addTodo(ctx context.Context, description string) error {
 	if description == "" {
 		return errors.New("description cannot be empty")
 	}
@@ -109,11 +139,11 @@ func addTodo(description string) error {
 
 	todos = append(todos, newTodo)
 	nextID++
-	logger.Info("Created new todo", "id", newTodo.ID, "task", newTodo.Task, "status", newTodo.Status)
+	logWithTraceId(ctx).Info("Created new todo", "id", newTodo.ID, "task", newTodo.Task, "status", newTodo.Status)
 	return nil
 }
 
-func updateTodo(id int, description string, status Status) error {
+func updateTodo(ctx context.Context, id int, description string, status Status) error {
 	for i, todo := range todos {
 		if todo.ID == id {
 			if description != "" {
@@ -124,25 +154,25 @@ func updateTodo(id int, description string, status Status) error {
 				todos[i].Status = status
 			}
 
-			logger.Info("Updated todo", "id", id, "task", todos[i].Task, "status", todos[i].Status)
+			logWithTraceId(ctx).Info("Updated todo", "id", id, "task", todos[i].Task, "status", todos[i].Status)
 			return nil
 		}
 	}
 
-	logger.Error("Todo not found", "id", id)
+	logWithTraceId(ctx).Error("Todo not found", "id", id)
 	return fmt.Errorf("todo not found")
 }
 
-func deleteTodo(id int) error {
+func deleteTodo(ctx context.Context, id int) error {
 	for i, todo := range todos {
 		if todo.ID == id {
 			todos = slices.Delete(todos, i, i+1)
-			fmt.Printf("Deleted todo ID %d\n", id)
+			logWithTraceId(ctx).Info("Deleted todo", "id", id)
 			return nil
 		}
 	}
 
-	logger.Error("Todo not found", "id", id)
+	logWithTraceId(ctx).Error("Todo not found", "id", id)
 	return errors.New("todo not found")
 }
 
@@ -163,6 +193,7 @@ func validateStatus(status string) (Status, error) {
 
 func main() {
 	setupLogger()
+	ctx := withTraceId(context.Background())
 
 	listFlag := flag.Bool("list", false, "List all todos")
 	addFlag := flag.Bool("add", false, "Add a new todo")
@@ -174,43 +205,50 @@ func main() {
 
 	flag.Parse()
 
-	if err := loadTodos(); err != nil {
-		logger.Error("Error loading todos", "error", err)
+	if err := loadTodos(ctx); err != nil {
+		logWithTraceId(ctx).Error("Error loading todos", "error", err)
 		return
 	}
 
 	switch {
 	case *listFlag:
-		listTodos()
+		listTodos(ctx)
 	case *addFlag:
 		if *description == "" {
-			logger.Error("Error: --description is required for --add")
+			logWithTraceId(ctx).Error("--description is required for --add")
 			return
 		}
-		addTodo(*description)
-		saveTodos()
+		addTodo(ctx, *description)
+		saveTodos(ctx)
 	case *updateFlag:
 		if *id == 0 {
-			logger.Error("Error: --id is required for --update")
+			logWithTraceId(ctx).Error("--id is required for --update")
 			return
 		}
 		if *description == "" && *status == "" {
-			logger.Error("Error: At least one of --description or --status must be provided for --update")
+			logWithTraceId(ctx).Error("At least one of --description or --status must be provided for --update")
 			return
 		}
 		validStatus, err := validateStatus(*status)
 		if err != nil {
-			logger.Error(err.Error())
+			logWithTraceId(ctx).Error(err.Error())
 			return
 		}
-		updateTodo(*id, *description, validStatus)
-		saveTodos()
+		err = updateTodo(ctx, *id, *description, validStatus)
+		if err != nil {
+			return
+		}
+
+		saveTodos(ctx)
 	case *deleteFlag:
 		if *id == 0 {
-			fmt.Println("Error: --id is required for --delete")
+			logWithTraceId(ctx).Error("--id is required for --delete")
 			return
 		}
-		deleteTodo(*id)
-		saveTodos()
+		err := deleteTodo(ctx, *id)
+		if err != nil {
+			return
+		}
+		saveTodos(ctx)
 	}
 }
