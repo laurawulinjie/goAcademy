@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
 	"slices"
 	"text/tabwriter"
 
@@ -45,10 +46,6 @@ const traceIdKey contextKey = "traceID"
 
 func generateTraceId() string {
 	return uuid.New().String()
-}
-
-func withTraceId(ctx context.Context) context.Context {
-	return context.WithValue(ctx, traceIdKey, generateTraceId())
 }
 
 func getTraceId(ctx context.Context) string {
@@ -193,7 +190,17 @@ func validateStatus(status string) (Status, error) {
 
 func main() {
 	setupLogger()
-	ctx := withTraceId(context.Background())
+	ctx, ctxDone := context.WithCancel(context.Background())
+	ctx = context.WithValue(ctx, traceIdKey, generateTraceId())
+	logWithTraceId(ctx).InfoContext(ctx, "start application")
+
+	go func() {
+		defer ctxDone()
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		s := <-c
+		logWithTraceId(ctx).InfoContext(ctx, "got signal: ["+s.String()+"] now closing")
+	}()
 
 	listFlag := flag.Bool("list", false, "List all todos")
 	addFlag := flag.Bool("add", false, "Add a new todo")
@@ -216,39 +223,45 @@ func main() {
 	case *addFlag:
 		if *description == "" {
 			logWithTraceId(ctx).Error("--description is required for --add")
-			return
+			break
 		}
 		addTodo(ctx, *description)
 		saveTodos(ctx)
 	case *updateFlag:
 		if *id == 0 {
 			logWithTraceId(ctx).Error("--id is required for --update")
-			return
+			break
 		}
 		if *description == "" && *status == "" {
 			logWithTraceId(ctx).Error("At least one of --description or --status must be provided for --update")
-			return
+			break
 		}
 		validStatus, err := validateStatus(*status)
 		if err != nil {
 			logWithTraceId(ctx).Error(err.Error())
-			return
+			break
 		}
 		err = updateTodo(ctx, *id, *description, validStatus)
 		if err != nil {
-			return
+			break
 		}
 
 		saveTodos(ctx)
 	case *deleteFlag:
 		if *id == 0 {
 			logWithTraceId(ctx).Error("--id is required for --delete")
-			return
+			break
 		}
 		err := deleteTodo(ctx, *id)
 		if err != nil {
-			return
+			break
 		}
 		saveTodos(ctx)
+	default:
+		logWithTraceId(ctx).Info("No valid flag provided")
 	}
+
+	fmt.Println("Application is running. Press Ctrl + C to exit...")
+	<-ctx.Done()
+	logWithTraceId(ctx).Info("shutdown application")
 }

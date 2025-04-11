@@ -9,7 +9,8 @@ func resetTodos() context.Context {
 	todos = []Todo{}
 	nextID = 1
 	setupLogger()
-	return withTraceId(context.Background())
+	ctx := context.WithValue(context.Background(), traceIdKey, generateTraceId())
+	return ctx
 }
 
 func TestAddTodo(t *testing.T) {
