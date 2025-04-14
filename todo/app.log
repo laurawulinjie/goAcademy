@@ -1,0 +1,5 @@
+time=2025-04-14T16:33:22.508+01:00 level=INFO msg="todos loaded" traceID=e5f85ed2-fa59-4c73-9315-58bb28ccc0b0 todoLength=4
+time=2025-04-14T16:33:22.509+01:00 level=INFO msg="Server is running on http://localhost:8080/" traceID=e5f85ed2-fa59-4c73-9315-58bb28ccc0b0
+time=2025-04-14T16:33:48.414+01:00 level=INFO msg="Received request" traceID=b359a9fc-d948-4902-b96e-eed73c076212 method=GET path=/get
+time=2025-04-14T16:33:48.414+01:00 level=INFO msg="Returning todos" traceID=b359a9fc-d948-4902-b96e-eed73c076212
+time=2025-04-14T16:34:02.355+01:00 level=INFO msg="shutdown application" traceID=e5f85ed2-fa59-4c73-9315-58bb28ccc0b0
