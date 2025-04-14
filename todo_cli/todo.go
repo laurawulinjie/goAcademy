@@ -40,6 +40,7 @@ func setupLogger() {
 	logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
 
+// not really type safe, get rid of it
 type contextKey string
 
 const traceIdKey contextKey = "traceID"

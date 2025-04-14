@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "task": "breakfast",
+    "status": "completed"
+  },
+  {
+    "id": 2,
+    "task": "lunch",
+    "status": "not started"
+  }
+]
