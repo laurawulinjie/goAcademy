@@ -30,7 +30,7 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	Log(ctx).Info("Returning todos")
-	json.NewEncoder(w).Encode(GetAllTodos())
+	json.NewEncoder(w).Encode(GetAllTodos(ctx))
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {

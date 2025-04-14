@@ -3,20 +3,24 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
-	"slices"
 )
 
-var todos []Todo
+var todos = make(map[int]Todo)
+
 var nextId = 1
 
-func GetAllTodos() []Todo {
+func GetAllTodos(ctx context.Context) map[int]Todo {
+	if len(todos) == 0 {
+		Log(ctx).Info("No todos found")
+	}
+
 	return todos
 }
 
 func CreateTodo(ctx context.Context, task string) (Todo, error) {
 	if task == "" {
-		return Todo{}, errors.New("task is required")
+		Log(ctx).Error("Task cannot be empty")
+		return Todo{}, errors.New("task cannot be empty")
 	}
 
 	newTodo := Todo{
@@ -25,40 +29,41 @@ func CreateTodo(ctx context.Context, task string) (Todo, error) {
 		Status: NotStarted,
 	}
 
-	todos = append(todos, newTodo)
+	todos[nextId] = newTodo
 	nextId++
+	Log(ctx).Info("Created new todo", "id", newTodo.ID, "task", newTodo.Task, "status", newTodo.Status)
 	return newTodo, nil
 }
 
 func UpdateTodo(ctx context.Context, id int, task string, status string) error {
-	for i, todo := range todos {
-		if todo.ID == id {
-			if task != "" {
-				todos[i].Task = task
-			}
-
-			if status != "" {
-				todos[i].Status = status
-			}
-
-			Log(ctx).Info("Updated todo", "id", id, "task", todos[i].Task, "status", todos[i].Status)
-			return nil
-		}
+	todo, exists := todos[id]
+	if !exists {
+		Log(ctx).Error("Todo not found", "id", id)
+		return errors.New("todo not found")
 	}
 
-	Log(ctx).Error("Todo not found", "id", id)
-	return fmt.Errorf("todo not found")
+	if task != "" {
+		todo.Task = task
+	}
+
+	if status != "" {
+		todo.Status = status
+	}
+
+	todos[id] = todo
+
+	Log(ctx).Info("Updated todo", "id", id, "task", todos[id].Task, "status", todos[id].Status)
+	return nil
 }
 
 func DeleteTodo(ctx context.Context, id int) error {
-	for i, todo := range todos {
-		if todo.ID == id {
-			todos = slices.Delete(todos, i, i+1)
-			Log(ctx).Info("Deleted todo", "id", id)
-			return nil
-		}
+	_, exists := todos[id]
+	if !exists {
+		Log(ctx).Error("Todo not found", "id", id)
+		return errors.New("todo not found")
 	}
 
-	Log(ctx).Error("Todo not found", "id", id)
-	return errors.New("todo not found")
+	delete(todos, id)
+	Log(ctx).Info("Deleted todo", "id", id)
+	return nil
 }

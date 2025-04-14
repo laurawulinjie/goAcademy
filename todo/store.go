@@ -21,16 +21,24 @@ func LoadTodos(ctx context.Context) error {
 	}
 
 	defer file.Close()
+	var loaded map[int]Todo
 	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(&todos); err != nil {
+
+	if err := decoder.Decode(&loaded); err != nil {
 		Log(ctx).Error("failed to decode todos")
 		return err
 	}
 
-	if len(todos) > 0 {
-		nextId = todos[len(todos)-1].ID + 1
+	todos = loaded
+	maxId := 0
+
+	for id := range todos {
+		if id > maxId {
+			maxId = id
+		}
 	}
 
+	nextId = maxId + 1
 	Log(ctx).Info("todos loaded", "todoLength", len(todos))
 	return nil
 }

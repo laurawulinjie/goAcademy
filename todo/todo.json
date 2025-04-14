@@ -1,27 +1,17 @@
-[
-  {
-    "id": 1,
-    "task": "buy flower",
-    "status": "not started"
-  },
-  {
-    "id": 2,
-    "task": "buy milk",
-    "status": "not started"
-  },
-  {
-    "id": 3,
-    "task": "buy coffee",
-    "status": "not started"
-  },
-  {
-    "id": 4,
-    "task": "buy tea",
-    "status": "not started"
-  },
-  {
-    "id": 5,
-    "task": "buy sugar",
-    "status": "not started"
-  }
-]
+{
+	"1": {
+		"id": 1,
+		"task": "buy sugar",
+		"status": "completed"
+	},
+	"2": {
+		"id": 2,
+		"task": "buy milk",
+		"status": "not started"
+	},
+	"3": {
+		"id": 3,
+		"task": "buy coffee",
+		"status": "not started"
+	}
+}
