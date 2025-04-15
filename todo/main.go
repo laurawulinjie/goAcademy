@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,13 +11,15 @@ func main() {
 	ctx := WithNewTraceId()
 
 	if err := LoadTodos(ctx); err != nil {
-		log.Fatal(err)
+		Log(ctx).Error(err.Error())
+	}
+
+	if err := setupTemplate(); err != nil {
+		Log(ctx).Error(err.Error())
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Todo API is running"))
-	})
+	mux.HandleFunc("/", IndexHandler)
 	mux.HandleFunc("/create", CreateHandler)
 	mux.HandleFunc("/get", GetHandler)
 	mux.HandleFunc("/update", UpdateHandler)

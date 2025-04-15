@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Todo App</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+    .todo { display: flex; align-items: center; margin-bottom: 1rem; gap: 0.5rem; }
+    input, select { padding: 0.3rem; }
+    button { padding: 0.3rem 0.6rem; }
+    .readonly input, .readonly select { border: none; background: transparent; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <h1>Todo List</h1>
+
+  <div>
+    <input type="text" id="new-task" placeholder="New task..." />
+    <button onclick="createTodo()">Add</button>
+  </div>
+
+  <hr />
+
+  <div id="todo-list">
+    {{ range $id, $todo := .Todos }}
+      <div class="todo readonly" data-id="{{ $id }}">
+        <input type="text" value="{{ $todo.Task }}" class="task-input" />
+        <select class="status-select">
+          <option value="not started" {{ if eq $todo.Status "not started" }}selected{{ end }}>Not Started</option>
+          <option value="started" {{ if eq $todo.Status "started" }}selected{{ end }}>Started</option>
+          <option value="completed" {{ if eq $todo.Status "completed" }}selected{{ end }}>Completed</option>
+        </select>
+        <button onclick="toggleEditSave('{{ $id }}', this)">Edit</button>
+        <button onclick="deleteTodo('{{ $id }}')">Delete</button>
+      </div>
+    {{ else }}
+      <p>No todos yet!</p>
+    {{ end }}
+  </div>
+
+  <script>
+    async function createTodo() {
+      const task = document.getElementById("new-task").value;
+      if (!task.trim()) return alert("Please enter a task.");
+  
+      await fetch("/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task })
+      });
+  
+      location.reload();
+    }
+  
+    async function toggleEditSave(id, btn) {
+      const todoDiv = document.querySelector(`[data-id='${id}']`);
+      const input = todoDiv.querySelector(".task-input");
+      const select = todoDiv.querySelector(".status-select");
+  
+      const isEditing = !todoDiv.classList.contains("readonly");
+  
+      if (isEditing) {
+        const task = input.value;
+        const status = select.value;
+  
+        await fetch("/update", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: parseInt(id), task, status })
+        });
+  
+        btn.textContent = "Edit";
+        todoDiv.classList.add("readonly");
+      } else {
+        btn.textContent = "Save";
+        todoDiv.classList.remove("readonly");
+      }
+    }
+  
+    async function deleteTodo(id) {
+      if (!confirm("Are you sure you want to delete this todo?")) return;
+  
+      await fetch("/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: parseInt(id) })
+      });
+  
+      location.reload();
+    }
+  </script>
+</body>
+</html>

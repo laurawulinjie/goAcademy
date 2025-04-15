@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const dataFile = "todo.json"
+const dataFile = "./data/todo.json"
 
 func LoadTodos(ctx context.Context) error {
 	file, err := os.Open(dataFile)

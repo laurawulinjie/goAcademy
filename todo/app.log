@@ -1,3 +1,0 @@
-time=2025-04-14T18:04:27.726+01:00 level=INFO msg="todos loaded" traceID=8d4a522e-a1f9-4f8c-a6d5-2861ad390e03 todoLength=3
-time=2025-04-14T18:04:27.727+01:00 level=INFO msg="Server is running on http://localhost:8080/" traceID=8d4a522e-a1f9-4f8c-a6d5-2861ad390e03
-time=2025-04-14T18:04:33.329+01:00 level=INFO msg="shutdown application" traceID=8d4a522e-a1f9-4f8c-a6d5-2861ad390e03

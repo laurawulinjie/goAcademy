@@ -10,7 +10,7 @@ import (
 var logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 func setupLogger() {
-	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("./data/app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		slog.New(slog.NewTextHandler(os.Stdout, nil)).Error("could not open log file", "error", err)
 		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))

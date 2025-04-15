@@ -83,3 +83,16 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	SaveTodos(ctx)
 	w.WriteHeader(http.StatusOK)
 }
+
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	data := PageData{
+		Todos: GetAllTodos(ctx),
+	}
+
+	if err := tmpl.ExecuteTemplate(w, "index.html", data); err != nil {
+		Log(ctx).Error("render error", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}

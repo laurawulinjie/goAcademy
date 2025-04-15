@@ -24,6 +24,5 @@ func ValidateStatus(status string) (string, error) {
 		return "", nil
 	default:
 		return "", ErrInvalidStatus
-
 	}
 }
