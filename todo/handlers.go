@@ -84,15 +84,43 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
+func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	data := PageData{
 		Todos: GetAllTodos(ctx),
 	}
 
-	if err := tmpl.ExecuteTemplate(w, "index.html", data); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "home.html", data); err != nil {
 		Log(ctx).Error("render error", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
+}
+
+func ListPageHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	data := PageData{
+		Todos: GetAllTodos(ctx),
+	}
+
+	if err := tmpl.ExecuteTemplate(w, "list.html", data); err != nil {
+		Log(ctx).Error("render error", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func AboutPageHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	staticFS, err := getStaticFS()
+	if err != nil {
+		Log(ctx).Error("failed to get static FS", "error", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	r = r.Clone(r.Context())
+	r.URL.Path = "about.html"
+
+	http.FileServer(http.FS(staticFS)).ServeHTTP(w, r)
 }

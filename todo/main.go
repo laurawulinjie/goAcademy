@@ -14,12 +14,14 @@ func main() {
 		Log(ctx).Error(err.Error())
 	}
 
-	if err := setupTemplate(); err != nil {
+	if err := setupDynamicPages(); err != nil {
 		Log(ctx).Error(err.Error())
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", IndexHandler)
+	mux.HandleFunc("/", HomePageHandler)
+	mux.HandleFunc("/list", ListPageHandler)
+	mux.HandleFunc("/about", AboutPageHandler)
 	mux.HandleFunc("/create", CreateHandler)
 	mux.HandleFunc("/get", GetHandler)
 	mux.HandleFunc("/update", UpdateHandler)
