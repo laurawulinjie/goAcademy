@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,6 +10,7 @@ import (
 func main() {
 	setupLogger()
 	ctx := WithNewTraceId()
+	ctx, ctxDone := context.WithCancel(ctx)
 
 	if err := LoadTodos(ctx); err != nil {
 		Log(ctx).Error(err.Error())
@@ -32,16 +34,22 @@ func main() {
 		Handler: TraceIdMiddleware(mux),
 	}
 
-	close := make(chan os.Signal, 1)
-	signal.Notify(close, os.Interrupt)
+	Log(ctx).Info("Server is running on http://localhost:8080/")
 
 	go func() {
-		Log(ctx).Info("Server is running on http://localhost:8080/")
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			Log(ctx).Error("Server error", "error", err)
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			panic("ListenAndServe: " + err.Error())
 		}
 	}()
 
-	<-close
+	go func() {
+		defer ctxDone()
+		close := make(chan os.Signal, 1)
+		signal.Notify(close, os.Interrupt)
+		sig := <-close
+		Log(ctx).Info("got signal: [" + sig.String() + "] now closing")
+	}()
+
+	<-ctx.Done()
 	Log(ctx).Info("shutdown application")
 }
