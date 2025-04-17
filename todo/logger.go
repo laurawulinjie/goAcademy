@@ -25,8 +25,11 @@ func setupLogger() {
 const traceIdKey string = "traceID"
 
 func Log(ctx context.Context) *slog.Logger {
-	id, _ := ctx.Value(traceIdKey).(string)
-	return logger.With("traceID", id)
+	if id, ok := ctx.Value(traceIdKey).(string); ok {
+		return logger.With("traceID", id)
+	}
+	return logger.With("traceID", "no-trace-id")
+
 }
 
 func WithNewTraceId() context.Context {
