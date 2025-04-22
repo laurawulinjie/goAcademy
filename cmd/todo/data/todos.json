@@ -6,5 +6,9 @@
 	"2": {
 		"task": "let the cat out",
 		"status": "started"
+	},
+	"3": {
+		"task": "clean cat litter",
+		"status": "not started"
 	}
 }

@@ -1,4 +1,0 @@
-time=2025-04-22T12:06:04.007+01:00 level=INFO source=/Users/laura.wu/goAcademy/todo/store.go:43 msg="todos loaded" todoLength=2 traceID=2d211a22-0447-4224-a7bb-bb9074a20271
-time=2025-04-22T12:06:04.008+01:00 level=INFO source=/Users/laura.wu/goAcademy/todo/main.go:39 msg="Server is running on http://localhost:8080/" traceID=2d211a22-0447-4224-a7bb-bb9074a20271
-time=2025-04-22T12:06:06.790+01:00 level=INFO source=/Users/laura.wu/goAcademy/todo/main.go:52 msg="got signal: [interrupt] now closing" traceID=2d211a22-0447-4224-a7bb-bb9074a20271
-time=2025-04-22T12:06:06.790+01:00 level=INFO source=/Users/laura.wu/goAcademy/todo/main.go:56 msg="shutdown application" traceID=2d211a22-0447-4224-a7bb-bb9074a20271
