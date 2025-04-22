@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"log/slog"
 )
 
 var todos = make(map[int]Todo)
@@ -11,7 +12,7 @@ var nextId = 1
 
 func GetAllTodos(ctx context.Context) map[int]Todo {
 	if len(todos) == 0 {
-		Log(ctx).Info("No todos found")
+		slog.InfoContext(ctx, "No todos found")
 	}
 
 	return todos
@@ -19,7 +20,7 @@ func GetAllTodos(ctx context.Context) map[int]Todo {
 
 func CreateTodo(ctx context.Context, task string) (Todo, error) {
 	if task == "" {
-		Log(ctx).Error("Task cannot be empty")
+		slog.ErrorContext(ctx, "Task cannot be empty")
 		return Todo{}, errors.New("task cannot be empty")
 	}
 
@@ -29,7 +30,7 @@ func CreateTodo(ctx context.Context, task string) (Todo, error) {
 	}
 
 	todos[nextId] = newTodo
-	Log(ctx).Info("Created new todo", "id", nextId, "task", newTodo.Task, "status", newTodo.Status)
+	slog.InfoContext(ctx, "Created new todo", "id", nextId, "task", newTodo.Task, "status", newTodo.Status)
 	nextId++
 	return newTodo, nil
 }
@@ -37,7 +38,7 @@ func CreateTodo(ctx context.Context, task string) (Todo, error) {
 func UpdateTodo(ctx context.Context, id int, task string, status string) error {
 	todo, exists := todos[id]
 	if !exists {
-		Log(ctx).Error("Todo not found", "id", id)
+		slog.ErrorContext(ctx, "Todo not found", "id", id)
 		return errors.New("todo not found")
 	}
 
@@ -51,18 +52,18 @@ func UpdateTodo(ctx context.Context, id int, task string, status string) error {
 
 	todos[id] = todo
 
-	Log(ctx).Info("Updated todo", "id", id, "task", todos[id].Task, "status", todos[id].Status)
+	slog.InfoContext(ctx, "Updated todo", "id", id, "task", todos[id].Task, "status", todos[id].Status)
 	return nil
 }
 
 func DeleteTodo(ctx context.Context, id int) error {
 	_, exists := todos[id]
 	if !exists {
-		Log(ctx).Error("Todo not found", "id", id)
+		slog.ErrorContext(ctx, "Todo not found", "id", id)
 		return errors.New("todo not found")
 	}
 
 	delete(todos, id)
-	Log(ctx).Info("Deleted todo", "id", id)
+	slog.InfoContext(ctx, "Deleted todo", "id", id)
 	return nil
 }

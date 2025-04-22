@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 )
 
@@ -29,7 +30,7 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	Log(ctx).Info("Returning todos")
+	slog.InfoContext(ctx, "Returning todos")
 	json.NewEncoder(w).Encode(GetAllTodos(ctx))
 }
 
@@ -92,7 +93,7 @@ func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := tmpl.ExecuteTemplate(w, "home.html", data); err != nil {
-		Log(ctx).Error("render error", "error", err)
+		slog.ErrorContext(ctx, "render error", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
@@ -105,7 +106,7 @@ func ListPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := tmpl.ExecuteTemplate(w, "list.html", data); err != nil {
-		Log(ctx).Error("render error", "error", err)
+		slog.ErrorContext(ctx, "render error", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
@@ -114,7 +115,7 @@ func AboutPageHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	staticFS, err := getStaticFS()
 	if err != nil {
-		Log(ctx).Error("failed to get static FS", "error", err)
+		slog.ErrorContext(ctx, "failed to get static FS", "error", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

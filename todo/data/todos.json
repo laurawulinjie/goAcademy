@@ -1,17 +1,10 @@
 {
-	"5": {
-		"id": 5,
-		"task": "feed cat",
-		"status": "started"
-	},
-	"6": {
-		"id": 6,
-		"task": "clean cat litter",
+	"1": {
+		"task": "feed the cat",
 		"status": "completed"
 	},
-	"7": {
-		"id": 7,
-		"task": "water plants",
-		"status": "not started"
+	"2": {
+		"task": "let the cat out",
+		"status": "started"
 	}
 }

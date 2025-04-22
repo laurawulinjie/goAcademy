@@ -7,29 +7,33 @@ import (
 	"os"
 )
 
+const traceIdKey string = "traceID"
+
+type traceIdHandler struct {
+	slog.Handler
+}
+
+func (h *traceIdHandler) Handle(ctx context.Context, r slog.Record) error {
+	if traceID, ok := ctx.Value(traceIdKey).(string); ok {
+		r.AddAttrs(slog.String(traceIdKey, traceID))
+	}
+	return h.Handler.Handle(ctx, r)
+}
+
 var logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 func setupLogger() {
 	logFile, err := os.OpenFile("./data/app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		slog.New(slog.NewTextHandler(os.Stdout, nil)).Error("could not open log file", "error", err)
-		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 		return
 	}
 
 	multiWriter := io.MultiWriter(os.Stdout, logFile)
-	handler := slog.NewTextHandler(multiWriter, nil)
+	baseHandler := slog.NewTextHandler(multiWriter, &slog.HandlerOptions{AddSource: true})
+	handler := &traceIdHandler{Handler: baseHandler}
 	logger = slog.New(handler)
-}
-
-const traceIdKey string = "traceID"
-
-func Log(ctx context.Context) *slog.Logger {
-	if id, ok := ctx.Value(traceIdKey).(string); ok {
-		return logger.With("traceID", id)
-	}
-	return logger.With("traceID", "no-trace-id")
-
+	slog.SetDefault(logger)
 }
 
 func WithNewTraceId() context.Context {

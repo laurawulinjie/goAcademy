@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,11 +14,11 @@ func main() {
 	ctx, ctxDone := context.WithCancel(ctx)
 
 	if err := LoadTodos(ctx); err != nil {
-		Log(ctx).Error(err.Error())
+		slog.ErrorContext(ctx, err.Error())
 	}
 
 	if err := setupDynamicPages(); err != nil {
-		Log(ctx).Error(err.Error())
+		slog.ErrorContext(ctx, err.Error())
 	}
 
 	mux := http.NewServeMux()
@@ -34,7 +35,7 @@ func main() {
 		Handler: TraceIdMiddleware(mux),
 	}
 
-	Log(ctx).Info("Server is running on http://localhost:8080/")
+	slog.InfoContext(ctx, "Server is running on http://localhost:8080/")
 
 	go func() {
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
@@ -47,9 +48,9 @@ func main() {
 		close := make(chan os.Signal, 1)
 		signal.Notify(close, os.Interrupt)
 		sig := <-close
-		Log(ctx).Info("got signal: [" + sig.String() + "] now closing")
+		slog.InfoContext(ctx, "got signal: ["+sig.String()+"] now closing")
 	}()
 
 	<-ctx.Done()
-	Log(ctx).Info("shutdown application")
+	slog.InfoContext(ctx, "shutdown application")
 }
