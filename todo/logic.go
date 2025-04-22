@@ -24,14 +24,13 @@ func CreateTodo(ctx context.Context, task string) (Todo, error) {
 	}
 
 	newTodo := Todo{
-		ID:     nextId,
 		Task:   task,
 		Status: NotStarted,
 	}
 
 	todos[nextId] = newTodo
+	Log(ctx).Info("Created new todo", "id", nextId, "task", newTodo.Task, "status", newTodo.Status)
 	nextId++
-	Log(ctx).Info("Created new todo", "id", newTodo.ID, "task", newTodo.Task, "status", newTodo.Status)
 	return newTodo, nil
 }
 

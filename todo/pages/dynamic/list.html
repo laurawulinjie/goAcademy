@@ -19,7 +19,7 @@
     <div id="todo-list">
       {{ range $id, $todo := .Todos }}
       <div class="todo-item">
-        <div><b>ID: </b>{{ $todo.ID }}</div>
+        <div><b>ID: </b>{{ $id }}</div>
         <div><b>Task: </b>{{ $todo.Task }}</div>
         <div><b>Status: </b>{{ $todo.Status }}</div>
       </div>
