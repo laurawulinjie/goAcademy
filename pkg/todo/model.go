@@ -1,4 +1,4 @@
-package main
+package todo
 
 const (
 	NotStarted string = "not started"

@@ -1,0 +1,22 @@
+go 1.24.1
+
+use (
+	./cmd/todo
+	./pkg/handlers
+	./pkg/logger
+	./pkg/middleware
+	./pkg/todo
+	./pkg/utils
+)
+
+replace github.com/laurawulinjie/goAcademy/pkg/handlers v0.0.0 => ./pkg/handlers
+
+replace github.com/laurawulinjie/goAcademy/pkg/logger v0.0.0 => ./pkg/logger
+
+replace github.com/laurawulinjie/goAcademy/pkg/middleware v0.0.0 => ./pkg/middleware
+
+replace github.com/laurawulinjie/goAcademy/pkg/middleware v0.0.0 => ./pkg/middleware
+
+replace github.com/laurawulinjie/goAcademy/pkg/todo v0.0.0 => ./pkg/todo
+
+replace github.com/laurawulinjie/goAcademy/pkg/utils v0.0.0 => ./pkg/utils

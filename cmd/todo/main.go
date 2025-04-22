@@ -6,14 +6,19 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+
+	"github.com/laurawulinjie/goAcademy/pkg/handlers"
+	"github.com/laurawulinjie/goAcademy/pkg/logger"
+	"github.com/laurawulinjie/goAcademy/pkg/middleware"
+	"github.com/laurawulinjie/goAcademy/pkg/todo"
 )
 
 func main() {
-	setupLogger()
-	ctx := WithNewTraceId()
+	logger.SetupLogger()
+	ctx := logger.WithNewTraceId()
 	ctx, ctxDone := context.WithCancel(ctx)
 
-	if err := LoadTodos(ctx); err != nil {
+	if err := todo.LoadTodos(ctx); err != nil {
 		slog.ErrorContext(ctx, err.Error())
 	}
 
@@ -25,14 +30,14 @@ func main() {
 	mux.HandleFunc("/", HomePageHandler)
 	mux.HandleFunc("/list", ListPageHandler)
 	mux.HandleFunc("/about", AboutPageHandler)
-	mux.HandleFunc("/create", CreateHandler)
-	mux.HandleFunc("/get", GetHandler)
-	mux.HandleFunc("/update", UpdateHandler)
-	mux.HandleFunc("/delete", DeleteHandler)
+	mux.HandleFunc("/create", handlers.CreateHandler)
+	mux.HandleFunc("/get", handlers.GetHandler)
+	mux.HandleFunc("/update", handlers.UpdateHandler)
+	mux.HandleFunc("/delete", handlers.DeleteHandler)
 
 	server := &http.Server{
 		Addr:    "0.0.0.0:8080",
-		Handler: TraceIdMiddleware(mux),
+		Handler: middleware.TraceIdMiddleware(mux),
 	}
 
 	slog.InfoContext(ctx, "Server is running on http://localhost:8080/")

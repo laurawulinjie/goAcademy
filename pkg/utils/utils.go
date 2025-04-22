@@ -1,9 +1,10 @@
-package main
+package utils
 
 import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/laurawulinjie/goAcademy/pkg/todo"
 )
 
 func GenerateTraceID() string {
@@ -15,11 +16,11 @@ var ErrInvalidStatus = errors.New("status must be one of: not started, started, 
 func ValidateStatus(status string) (string, error) {
 	switch status {
 	case "not started":
-		return NotStarted, nil
+		return todo.NotStarted, nil
 	case "started":
-		return Started, nil
+		return todo.Started, nil
 	case "completed":
-		return Completed, nil
+		return todo.Completed, nil
 	case "":
 		return "", nil
 	default:
