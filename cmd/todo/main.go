@@ -27,9 +27,9 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", HomePageHandler)
-	mux.HandleFunc("/list", ListPageHandler)
-	mux.HandleFunc("/about", AboutPageHandler)
+	mux.HandleFunc("/", ServeHomePage)
+	mux.HandleFunc("/list", ServeListPage)
+	mux.HandleFunc("/about", ServeAboutPage)
 	mux.HandleFunc("/create", handlers.CreateHandler)
 	mux.HandleFunc("/get", handlers.GetHandler)
 	mux.HandleFunc("/update", handlers.UpdateHandler)

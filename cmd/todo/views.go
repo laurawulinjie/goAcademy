@@ -31,7 +31,7 @@ func setupDynamicPages() error {
 	return err
 }
 
-func HomePageHandler(w http.ResponseWriter, r *http.Request) {
+func ServeHomePage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	data := PageData{
@@ -44,7 +44,7 @@ func HomePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ListPageHandler(w http.ResponseWriter, r *http.Request) {
+func ServeListPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	data := PageData{
@@ -57,7 +57,7 @@ func ListPageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AboutPageHandler(w http.ResponseWriter, r *http.Request) {
+func ServeAboutPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	staticFS, err := fs.Sub(staticFS, "pages/static")
 	if err != nil {
