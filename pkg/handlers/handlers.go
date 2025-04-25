@@ -80,7 +80,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := todo.DeleteTodo(ctx, req.ID); err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
 
