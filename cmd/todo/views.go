@@ -22,7 +22,7 @@ type PageData struct {
 	Todos map[int]todo.Todo
 }
 
-func setupDynamicPages() error {
+func SetupDynamicPages() error {
 	subFS, err := fs.Sub(dynamicFS, "pages/dynamic")
 	if err != nil {
 		return err
@@ -66,7 +66,7 @@ func ServeAboutPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r = r.Clone(r.Context())
+	r = r.Clone(ctx)
 	r.URL.Path = "about.html"
 
 	http.FileServer(http.FS(staticFS)).ServeHTTP(w, r)

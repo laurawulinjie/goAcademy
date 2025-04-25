@@ -22,7 +22,7 @@ func main() {
 		slog.ErrorContext(ctx, err.Error())
 	}
 
-	if err := setupDynamicPages(); err != nil {
+	if err := SetupDynamicPages(); err != nil {
 		slog.ErrorContext(ctx, err.Error())
 	}
 
