@@ -1,14 +1,14 @@
 {
 	"1": {
 		"task": "feed the cat",
-		"status": "completed"
-	},
-	"2": {
-		"task": "let the cat out",
 		"status": "started"
 	},
-	"3": {
+	"2": {
 		"task": "clean cat litter",
+		"status": "completed"
+	},
+	"3": {
+		"task": "buy cat food",
 		"status": "not started"
 	}
 }

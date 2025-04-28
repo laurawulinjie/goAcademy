@@ -15,12 +15,13 @@ import (
 
 func main() {
 	logger.SetupLogger()
-	ctx := logger.WithNewTraceId()
-	ctx, ctxDone := context.WithCancel(ctx)
+	ctx, ctxDone := context.WithCancel(logger.WithNewTraceId())
 
 	if err := todo.LoadTodos(ctx); err != nil {
 		slog.ErrorContext(ctx, err.Error())
 	}
+
+	todo.StartTodoActor(ctx)
 
 	if err := SetupDynamicPages(); err != nil {
 		slog.ErrorContext(ctx, err.Error())

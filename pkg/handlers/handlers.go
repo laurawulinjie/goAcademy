@@ -18,23 +18,45 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
 	}
 
-	newTodo, err := todo.CreateTodo(ctx, req.Task)
+	response := make(chan any)
+	todo.RequestQueue <- todo.Request{
+		Ctx:      ctx,
+		Action:   "create",
+		Payload:  req.Task,
+		Response: response,
+	}
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	res := (<-response).(struct {
+		Todo todo.Todo
+		Err  error
+	})
+
+	if res.Err != nil {
+		http.Error(w, res.Err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	todo.SaveTodos(ctx)
-	json.NewEncoder(w).Encode(newTodo)
+	json.NewEncoder(w).Encode(res.Todo)
 }
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	response := make(chan any)
+
+	todo.RequestQueue <- todo.Request{
+		Ctx:      ctx,
+		Action:   "getAll",
+		Payload:  nil,
+		Response: response,
+	}
+
 	slog.InfoContext(ctx, "Returning todos")
-	json.NewEncoder(w).Encode(todo.GetAllTodos(ctx))
+	todos := (<-response).(map[int]todo.Todo)
+	json.NewEncoder(w).Encode(todos)
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
@@ -58,8 +80,24 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := todo.UpdateTodo(ctx, req.ID, req.Task, status); err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+	response := make(chan any)
+	todo.RequestQueue <- todo.Request{
+		Ctx:    ctx,
+		Action: "update",
+		Payload: struct {
+			ID     int
+			Task   string
+			Status string
+		}{req.ID, req.Task, status},
+		Response: response,
+	}
+
+	res := (<-response).(struct {
+		Err error
+	})
+
+	if res.Err != nil {
+		http.Error(w, res.Err.Error(), http.StatusNoContent)
 		return
 	}
 
@@ -79,8 +117,19 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := todo.DeleteTodo(ctx, req.ID); err != nil {
-		http.Error(w, err.Error(), http.StatusNoContent)
+	response := make(chan any)
+	todo.RequestQueue <- todo.Request{
+		Ctx:      ctx,
+		Action:   "delete",
+		Payload:  req.ID,
+		Response: response,
+	}
+
+	res := (<-response).(struct {
+		Err error
+	})
+	if res.Err != nil {
+		http.Error(w, res.Err.Error(), http.StatusNoContent)
 		return
 	}
 
