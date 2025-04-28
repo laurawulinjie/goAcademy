@@ -13,7 +13,6 @@ type Request struct {
 }
 
 var RequestQueue = make(chan Request, 100)
-var ShutdownChan = make(chan struct{})
 
 func StartTodoActor(ctx context.Context) {
 	slog.InfoContext(ctx, "Starting Todo Actor")
