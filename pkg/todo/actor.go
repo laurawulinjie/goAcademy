@@ -51,8 +51,11 @@ func StartTodoActor(ctx context.Context) {
 					}{Err: err}
 
 				case "getAll":
-					todos := GetAllTodos(req.Ctx)
-					req.Response <- todos
+					todos, err := GetAllTodos(req.Ctx)
+					req.Response <- struct {
+						Todos map[int]Todo
+						Err   error
+					}{Todos: todos, Err: err}
 				}
 			case <-ctx.Done():
 				slog.InfoContext(ctx, "shutting down todo actor")

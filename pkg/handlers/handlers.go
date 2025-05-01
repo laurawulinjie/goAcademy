@@ -39,7 +39,6 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo.SaveTodos(ctx)
 	json.NewEncoder(w).Encode(res.Todo)
 }
 
@@ -55,8 +54,18 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slog.InfoContext(ctx, "Returning todos")
-	todos := (<-response).(map[int]todo.Todo)
-	json.NewEncoder(w).Encode(todos)
+
+	res := (<-response).(struct {
+		Todos map[int]todo.Todo
+		Err   error
+	})
+
+	if res.Err != nil {
+		http.Error(w, res.Err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(res.Todos)
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
@@ -101,7 +110,6 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo.SaveTodos(ctx)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -133,6 +141,5 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todo.SaveTodos(ctx)
 	w.WriteHeader(http.StatusOK)
 }

@@ -33,9 +33,10 @@ func SetupDynamicPages() error {
 
 func ServeHomePage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	todos, _ := todo.GetAllTodos(ctx)
 
 	data := PageData{
-		Todos: todo.GetAllTodos(ctx),
+		Todos: todos,
 	}
 
 	if err := tmpl.ExecuteTemplate(w, "home.html", data); err != nil {
@@ -46,9 +47,10 @@ func ServeHomePage(w http.ResponseWriter, r *http.Request) {
 
 func ServeListPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	todos, _ := todo.GetAllTodos(ctx)
 
 	data := PageData{
-		Todos: todo.GetAllTodos(ctx),
+		Todos: todos,
 	}
 
 	if err := tmpl.ExecuteTemplate(w, "list.html", data); err != nil {

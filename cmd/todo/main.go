@@ -17,14 +17,15 @@ func main() {
 	logger.SetupLogger()
 	ctx, ctxDone := context.WithCancel(logger.WithNewTraceId())
 
-	if err := todo.LoadTodos(ctx); err != nil {
-		slog.ErrorContext(ctx, err.Error())
+	if err := todo.InitDB(); err != nil {
+		slog.ErrorContext(ctx, "failed to connect to database", "error", err)
+		return
 	}
 
 	todo.StartTodoActor(ctx)
 
 	if err := SetupDynamicPages(); err != nil {
-		slog.ErrorContext(ctx, err.Error())
+		slog.ErrorContext(ctx, "failed to setup dynamic pages", "err", err)
 	}
 
 	mux := http.NewServeMux()
