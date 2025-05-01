@@ -156,3 +156,25 @@ time=2025-04-28T12:02:08.090+01:00 level=INFO source=/Users/laura.wu/goAcademy/p
 time=2025-04-28T12:03:03.392+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:57 msg="got signal: [interrupt] now closing" traceID=25c8f675-00d8-467a-bb1b-c5c87c480893
 time=2025-04-28T12:03:03.392+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:61 msg="shutdown application" traceID=25c8f675-00d8-467a-bb1b-c5c87c480893
 time=2025-04-28T12:03:03.392+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/todo/actor.go:59 msg="shutting down todo actor" traceID=25c8f675-00d8-467a-bb1b-c5c87c480893
+time=2025-05-01T11:35:13.807+01:00 level=ERROR source=/Users/laura.wu/goAcademy/cmd/todo/main.go:21 msg="failed to connect to database" error="dial tcp: lookup port=: no such host" traceID=953fd030-e157-47c3-a708-8da401dae592
+time=2025-05-01T11:35:56.381+01:00 level=ERROR source=/Users/laura.wu/goAcademy/cmd/todo/main.go:21 msg="failed to connect to database" error="dial tcp: lookup port=: no such host" traceID=62f445d4-f2cc-43f6-afea-fe92418176e5
+time=2025-05-01T11:36:19.898+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/todo/actor.go:18 msg="Starting Todo Actor" traceID=a20aa241-51f1-4275-990a-314f13f8a99a
+time=2025-05-01T11:36:19.899+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:45 msg="Server is running on http://localhost:8080/" traceID=a20aa241-51f1-4275-990a-314f13f8a99a
+time=2025-05-01T11:36:34.578+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/middleware/middleware.go:16 msg="Received request" method=GET path=/ traceID=74054e80-f05f-498e-b8f1-d03bc5b148e4
+time=2025-05-01T11:36:35.203+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/middleware/middleware.go:16 msg="Received request" method=GET path=/favicon.ico traceID=edacef4c-8b4a-431d-8e66-24324a9aff54
+time=2025-05-01T11:37:30.476+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:58 msg="got signal: [interrupt] now closing" traceID=a20aa241-51f1-4275-990a-314f13f8a99a
+time=2025-05-01T11:37:30.476+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/todo/actor.go:61 msg="shutting down todo actor" traceID=a20aa241-51f1-4275-990a-314f13f8a99a
+time=2025-05-01T11:37:30.476+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:62 msg="shutdown application" traceID=a20aa241-51f1-4275-990a-314f13f8a99a
+time=2025-05-01T11:37:32.806+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/todo/actor.go:18 msg="Starting Todo Actor" traceID=a8f59f8c-e085-4cd3-9334-9d015de10aa3
+time=2025-05-01T11:37:32.806+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:45 msg="Server is running on http://localhost:8080/" traceID=a8f59f8c-e085-4cd3-9334-9d015de10aa3
+time=2025-05-01T11:37:39.443+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:58 msg="got signal: [interrupt] now closing" traceID=a8f59f8c-e085-4cd3-9334-9d015de10aa3
+time=2025-05-01T11:37:39.443+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:62 msg="shutdown application" traceID=a8f59f8c-e085-4cd3-9334-9d015de10aa3
+time=2025-05-01T11:38:07.700+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/todo/actor.go:18 msg="Starting Todo Actor" traceID=0cb1c77e-21f4-49df-b5e1-979e766e6601
+time=2025-05-01T11:38:07.700+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:45 msg="Server is running on http://localhost:8080/" traceID=0cb1c77e-21f4-49df-b5e1-979e766e6601
+time=2025-05-01T11:38:15.853+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/middleware/middleware.go:16 msg="Received request" method=PUT path=/update traceID=2f9fbe82-5b7a-42a9-9157-963b4b2b6968
+time=2025-05-01T11:38:15.857+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/todo/logic.go:74 msg="Updated todo" id=7 task="play with cat" status="not started" traceID=2f9fbe82-5b7a-42a9-9157-963b4b2b6968
+time=2025-05-01T11:38:19.846+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/middleware/middleware.go:16 msg="Received request" method=PUT path=/update traceID=f138f408-db69-4770-808d-254e9f95f955
+time=2025-05-01T11:38:19.848+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/todo/logic.go:74 msg="Updated todo" id=9 task="let cat out" status=completed traceID=f138f408-db69-4770-808d-254e9f95f955
+time=2025-05-01T11:38:21.808+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:58 msg="got signal: [interrupt] now closing" traceID=0cb1c77e-21f4-49df-b5e1-979e766e6601
+time=2025-05-01T11:38:21.808+01:00 level=INFO source=/Users/laura.wu/goAcademy/cmd/todo/main.go:62 msg="shutdown application" traceID=0cb1c77e-21f4-49df-b5e1-979e766e6601
+time=2025-05-01T11:38:21.808+01:00 level=INFO source=/Users/laura.wu/goAcademy/pkg/todo/actor.go:61 msg="shutting down todo actor" traceID=0cb1c77e-21f4-49df-b5e1-979e766e6601
