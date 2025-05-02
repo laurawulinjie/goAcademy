@@ -65,7 +65,7 @@ func UpdateTodo(ctx context.Context, id int, task string, status string) error {
 		return err
 	}
 
-	count, err := res.RowsAffected()
+	count, _ := res.RowsAffected()
 	if count == 0 {
 		slog.ErrorContext(ctx, "Todo not found for updated", "id", id)
 		return errors.New("todo not found")
