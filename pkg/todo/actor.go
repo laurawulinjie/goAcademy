@@ -23,7 +23,12 @@ func StartTodoActor(ctx context.Context) {
 			case req := <-RequestQueue:
 				switch req.Action {
 				case "create":
-					todo, err := CreateTodo(req.Ctx, req.Payload.(string))
+					payload := req.Payload.(struct {
+						Task   string
+						UserID int
+					})
+
+					todo, err := CreateTodo(req.Ctx, payload.Task, payload.UserID)
 
 					req.Response <- struct {
 						Todo Todo
@@ -35,23 +40,30 @@ func StartTodoActor(ctx context.Context) {
 						ID     int
 						Task   string
 						Status string
+						UserID int
 					})
 
-					err := UpdateTodo(req.Ctx, payload.ID, payload.Task, payload.Status)
+					err := UpdateTodo(req.Ctx, payload.ID, payload.Task, payload.Status, payload.UserID)
 
 					req.Response <- struct {
 						Err error
 					}{Err: err}
 
 				case "delete":
-					err := DeleteTodo(req.Ctx, req.Payload.(int))
+					payload := req.Payload.(struct {
+						ID     int
+						UserID int
+					})
+
+					err := DeleteTodo(req.Ctx, payload.ID, payload.UserID)
 
 					req.Response <- struct {
 						Err error
 					}{Err: err}
 
 				case "getAll":
-					todos, err := GetAllTodos(req.Ctx)
+					userID := req.Payload.(int)
+					todos, err := GetAllTodos(req.Ctx, userID)
 					req.Response <- struct {
 						Todos map[int]Todo
 						Err   error

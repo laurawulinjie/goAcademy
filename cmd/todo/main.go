@@ -36,10 +36,27 @@ func main() {
 	mux.HandleFunc("/get", handlers.GetHandler)
 	mux.HandleFunc("/update", handlers.UpdateHandler)
 	mux.HandleFunc("/delete", handlers.DeleteHandler)
+	mux.HandleFunc("/logout", handlers.LogoutHandler)
+
+	mux.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.RegisterHandler(w, r)
+			return
+		}
+		ServeRegisterPage(w, r)
+	})
+
+	mux.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handlers.LoginHandler(w, r)
+			return
+		}
+		ServeLoginPage(w, r)
+	})
 
 	server := &http.Server{
 		Addr:    "0.0.0.0:8080",
-		Handler: middleware.TraceIdMiddleware(mux),
+		Handler: middleware.TraceIdMiddleware(middleware.UserAuthMiddleware(mux)),
 	}
 
 	slog.InfoContext(ctx, "Server is running on http://localhost:8080/")

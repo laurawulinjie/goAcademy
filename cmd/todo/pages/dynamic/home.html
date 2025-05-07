@@ -12,6 +12,9 @@
   </style>
 </head>
 <body>
+  <p>Welcome, {{ .Username }}!</p>
+  <button onclick="logout()">Logout</button>
+  
   <h1>Todo List</h1>
 
   <div>
@@ -39,6 +42,11 @@
   </div>
 
   <script>
+    async function logout() {
+      await fetch("/logout", { method: "POST" });
+      window.location.href = "/login";
+    }
+
     async function createTodo() {
       const task = document.getElementById("new-task").value;
       if (!task.trim()) return alert("Please enter a task.");

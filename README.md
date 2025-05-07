@@ -2,7 +2,7 @@
 
 A multi-app Go project that includes:
 
-- **🖥️ `todo`** – A web-based Todo app with PostgreSQL, HTML UI, and REST API
+- **🖥️ `todo`** – A web-based Todo app with PostgreSQL, REST API, HTML pages, and user authentication.
 - **🧾 `todo_cli`** – A command-line Todo app for managing tasks in the terminal
 
 ## 🚀 1. Run the Web App (`todo`)
@@ -25,7 +25,24 @@ brew services start postgresql
 
 ```bash
 createdb todoapp
-psql todoapp -c "CREATE TABLE todos (id SERIAL PRIMARY KEY, task TEXT NOT NULL, status TEXT NOT NULL);"
+psql todoapp
+```
+
+In the `psql` shell, run:
+
+```bash
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL
+);
+
+CREATE TABLE todos (
+  id SERIAL PRIMARY KEY,
+  task TEXT NOT NULL,
+  status TEXT NOT NULL,
+  user_id INTEGER REFERENCES users(id)
+);
 ```
 
 #### 3. Set up your `.env` file
