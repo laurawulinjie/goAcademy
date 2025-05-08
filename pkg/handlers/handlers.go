@@ -206,21 +206,36 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = todo.DB.Exec(
-		`INSERT INTO users (username, password) VALUES ($1, $2)`,
-		req.Username, hashedPassword)
+	response := make(chan any)
+	ctx := r.Context()
 
-	if err != nil {
-		slog.Error("Failed to register user", "username", req.Username, "error", err)
-		http.Error(w, "Failed to register user (possibly duplicate username)", http.StatusInternalServerError)
+	todo.RequestQueue <- todo.Request{
+		Ctx:    ctx,
+		Action: "register",
+		Payload: struct {
+			Username string
+			Password string
+		}{req.Username, string(hashedPassword)},
+		Response: response,
+	}
+
+	res := (<-response).(struct {
+		Err error
+	})
+
+	if res.Err != nil {
+		slog.ErrorContext(ctx, "Failed to register user", "username", req.Username, "error", res.Err.Error())
+		http.Error(w, "Failed to register user"+res.Err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	slog.Info("User registered successfully", "username", req.Username)
+	slog.InfoContext(ctx, "User registered successfully", "username", req.Username)
 	w.WriteHeader(http.StatusCreated)
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	var req struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -247,7 +262,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "User not found", http.StatusUnauthorized)
 			return
 		}
-		slog.Error("Failed to query user", "username", req.Username, "error", err)
+
+		slog.ErrorContext(ctx, "Failed to query user", "username", req.Username, "error", err)
 		http.Error(w, "Failed to query user", http.StatusInternalServerError)
 		return
 	}
@@ -264,16 +280,20 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Path:  "/",
 	})
 
-	slog.Info("User logged in successfully", "user_id", user.ID, "username", req.Username)
+	slog.InfoContext(ctx, "User logged in successfully", "user_id", user.ID, "username", req.Username)
 	w.WriteHeader(http.StatusOK)
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	http.SetCookie(w, &http.Cookie{
 		Name:   "user_id",
 		Value:  "",
 		Path:   "/",
 		MaxAge: -1,
 	})
+
+	slog.InfoContext(ctx, "User logging out", "user_id", ctx.Value("user_id"))
 	http.Redirect(w, r, "/login", http.StatusFound)
 }

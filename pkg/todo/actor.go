@@ -68,6 +68,20 @@ func StartTodoActor(ctx context.Context) {
 						Todos map[int]Todo
 						Err   error
 					}{Todos: todos, Err: err}
+
+				case "register":
+					payload := req.Payload.(struct {
+						Username string
+						Password string
+					})
+
+					_, err := DB.ExecContext(req.Ctx,
+						"INSERT INTO users (username, password) VALUES ($1, $2)",
+						payload.Username, payload.Password)
+
+					req.Response <- struct {
+						Err error
+					}{Err: err}
 				}
 			case <-ctx.Done():
 				slog.InfoContext(ctx, "shutting down todo actor")
