@@ -1,6 +1,6 @@
 module todo
 
-go 1.24.1
+go 1.24.0
 
 require (
 	github.com/laurawulinjie/goAcademy/pkg/handlers v0.0.0
