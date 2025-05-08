@@ -5,7 +5,7 @@ A multi-app Go project that includes:
 - **🖥️ `todo`** – A web-based Todo app with PostgreSQL, REST API, HTML pages, and user authentication.
 - **🧾 `todo_cli`** – A command-line Todo app for managing tasks in the terminal
 
-## 🚀 1. Run the Web App (`todo`)
+## 🚀 1. Run the Web App (`todo`) Locally with Local DB
 
 ### Requirements
 
