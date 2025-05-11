@@ -57,4 +57,10 @@ cd cmd/todo
 go run ./
 ```
 
-open your browser at: http://localhost:8080/
+open your browser at: <http://localhost:8080/>
+
+#### 5.UI Preview
+
+![Home page](/cmd/todo/pages/static/home.png)
+![Home page](/cmd/todo/pages/static/login.png)
+![Home page](/cmd/todo/pages/static/register.png)
